@@ -1,0 +1,22 @@
+
+<div id="main">
+  <div id="weather-today"></div>
+    <div id="weather-forcast"></div>
+</div>
+
+
+<script type="text/html" id="template-weather-today">
+<div class="weatherCity">{weatherCity}</div>
+<div class="weatherTempNow">{weatherTempNow}<span class='upFlag'>°</span></div>
+<div class="weatherMsg">{weatherMsg}</div>
+<div class="weatherAqi"><span>空气质量:</span> {weatherAqi}</div>
+</script>
+
+<script type="text/html" id="template-weather-day">
+<div id="weatherDay" class="weatherDay-item">
+	<div id="weather-weekDay">{weekDay}</div>
+	<img src="imgs/day{dayImg}.png" class="weatherIcon" />
+	<div id="weather-weekDay">{dayWeather}</div>
+	<div id="weather-dayTemp">{dayTemp}</div>
+</div>
+</script>

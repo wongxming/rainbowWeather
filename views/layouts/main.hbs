@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html manifest="/manifest?pageId={{resMd5Info.pageId}}">
+
+<head>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta content="yes" name="apple-mobile-web-app-capable"/>
+	<meta content="yes" name="apple-touch-fullscreen"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+	<script type="text/javascript" src="http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js"></script>
+-->
+	<link type="text/css" rel="stylesheet" href="{{resMd5Info.mainCssVersion}}" >
+	<link type="text/css" rel="stylesheet" href="{{resMd5Info.cssVersion}}" >
+
+	<script type="text/javascript" language="javascript" src="{{resMd5Info.zeptoVersion}}"></script>
+	<script type="text/javascript" language="javascript" src="{{resMd5Info.jsVersion}}"></script>
+
+	<script type="text/javascript">
+	window.applicationCache.onupdateready = function(e){
+	  window.applicationCache.swapCache();
+	  window.location.reload();
+	};
+	</script>
+
+	<title>{{title}}</title>
+</head>
+
+<body>
+
+    {{{body}}}
+
+</body>
+</html>
