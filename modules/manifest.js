@@ -23,6 +23,13 @@ res.writeHead(200, {'Content-Type': 'text/cache-manifest'});
 	res.write(md5Info.zeptoVersion);
 	res.write('\r\n');
 	res.write(md5Info.mainCssVersion);
+	res.write('\r\n');
+	res.write(md5Info.muiJsVersion);
+	res.write('\r\n');
+	res.write(md5Info.muiCssVersion);
+	res.write('\r\n');
+	res.write(md5Info.utilVersion);
+
 
 for(var i=0; i<20; i++){
   	res.write('\r\n');

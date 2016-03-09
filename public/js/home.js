@@ -15,24 +15,25 @@ function isEmpty(val){
 
 function sendAjax(){
 
-var localStorage = window.localStorage;;
-var cityId = localStorage.cityId;
+var localStorage = window.localStorage;
+
+var url = window.location.href;
+var cityId = url.substring(url.lastIndexOf("/")).replace("/","");
 if(!cityId){
+  cityId = localStorage.cityId;
+  if(!cityId){
     cityId='101210101';
     localStorage.setItem('cityId','101210101');
+  }
 }
 
-var dataStr = localStorage.getItem(cityId+'data');
+
+var dataStr = DataCache.getItem(cityId+'data',true);
 
 if(dataStr){
-   var dataArray = dataStr.split('|');
-   var lstTime = dataArray[1];
-   if((Date.now()-lstTime)<300000){
-
-      fillData(dataArray[0]);
-      return ;
-   }
- }
+  fillData(dataStr);
+  return ;
+}
 
 
    $.ajax({ 
@@ -40,21 +41,22 @@ if(dataStr){
             async: true,               //发送同步请求，此值可忽略,不影响结果  
             timeout: 1000,
             url: "/weather?cityId="+cityId,    //请求地址
+            dataType: "text",
             success:function(data){         //成功后的回调函数,返回的数据放在data参数里  
                 
                 fillData(data);
 
-                localStorage.setItem(cityId+'data',data+'|'+Date.now());
+                DataCache.setItem(cityId+'data',data);
 
             },
             error:function(xhr, type){         //成功后的回调函数,返回的数据放在data参数里  
                 
-                var dataStr = localStorage.getItem(cityId+'data');
+                var dataStr = DataCache.getItemIgnoreTimeout(cityId+'data');
                 if(dataStr){
-                  var dataArray = dataStr.split('|');
-                  fillData(dataArray[0]);
+                  fillData(dataStr);
+                  console.log('error from cached '+cityId);
                 }else{
-                  $("BODY").append("网络异常啦！");
+                  $("body").append("网络异常啦！");
                   
                 }
 
@@ -73,46 +75,45 @@ var weatherData = JSON.parse(data) ;
 //forcast
     fillForcastDays(weatherData.weathers);
     
-
 };
 
 function fillWeatherToday(weatherData){
    
-   var aqi= weatherData.aqi.aqi+" "+weatherData.aqi.quality;
+    var realtime = weatherData.weatherNow;
+    realtime.aqi = weatherData.aqi.aqi+" "+weatherData.aqi.quality;
+    realtime.city= weatherData.city;
 
-var realtime = weatherData.weatherNow;
+  var tempTemplate = $("#template-weather-today").html();
 
-var tempTemplate = $("#template-weather-today").html();
-    tempTemplate = tempTemplate.replace(/{weatherCity}/g, weatherData.city)
-    .replace(/{weatherTempNow}/g, realtime.temp)
-    .replace(/{weatherMsg}/g, realtime.weather+" "+realtime.temp_day_night)
-    .replace(/{weatherAqi}/g, aqi);
-    
-    $("#weather-today").html(tempTemplate);
+  $("#weather-today").html(nanoReplace(tempTemplate,{"realtime":realtime}));
 
+//var bgImg = 'imgs/day'+realtime.img+".png";
+var bgImg='http://i.tq121.com.cn/i/wap/index390/d04.jpg';
+//$("#weather-today").css("background-image", "url("+bgImg+")");
 };
 
 function fillForcastDays(days){
+  var forcastHtml='';
+
   var day = days[0];
   days.shift();
   days.shift();
   days.unshift(day);
-    days.pop();
-    var forcast = $("#template-weather-day").html();
-    var weatherForcast = $("#weather-forcast");
+  days.pop();
 
-    for(var id in days){
-        var dayWther = days[id];
-        var forcastMsg = forcast.replace(/{weekDay}/g, dayWther.week)
-                            .replace(/{dayImg}/g, dayWther.img)
-                            .replace(/{dayWeather}/g, dayWther.weather)
-                            .replace(/{dayTemp}/g, dayWther.temp_day_night);
+  var forcast = $("#template-weather-day").html();
     
-        weatherForcast.append(forcastMsg);
-    }
+  for(var id in days){
+      var dayWther = days[id];
+      
+      forcastHtml += nanoReplace(forcast,{"dayWther":dayWther});
+  }
+
+  $("#weather-forcast").html(forcastHtml);
+  
+  $("#weather-forcast").children().first().removeClass('mui--divider-left').addClass('weatherDay-first');
 };
 
-/*
 jQuery(function($) {
   var $bodyEl = $('body'),
   $sidedrawerEl = $('#sidedrawer');
@@ -148,8 +149,8 @@ jQuery(function($) {
   }
   
   
-  $('.js-show-sidedrawer').on('click', showSidedrawer);
-  $('.js-hide-sidedrawer').on('click', hideSidedrawer);
+  $('.js-show-sidedrawer').on('tap', showSidedrawer);
+  $('.js-hide-sidedrawer').on('tap', hideSidedrawer);
   
   
   // ==========================================================================
@@ -163,9 +164,8 @@ jQuery(function($) {
       .next()
       .hide();
     
-    $titleEls.on('click', function() {
+    $titleEls.on('tap', function() {
       $(this).next().slideToggle(200);
     });
   })();
 });
-*/

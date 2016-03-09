@@ -1,5 +1,7 @@
 var request = require('request');
 
+var logger = require('../modules/logger').logger('weatherAPI');
+
 function isEmpty(val){
     return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
@@ -11,7 +13,7 @@ exports.getWeather = function(req, res,myCache){
   var data = myCache.get(cityId);
 
   if (data){
-      
+      logger.info('Cached '+cityId);
       res.setHeader('Content-Type', 'application/json;charset=utf-8');  
       res.send(data);
 
@@ -27,7 +29,8 @@ exports.getWeather = function(req, res,myCache){
           res.setHeader('Content-Type', 'application/json;charset=utf-8');  
           res.send(resultJson);
 
-          myCache.set( cityId, resultJson, 10*60);//10*60 s
+          logger.info('Cache '+cityId+' '+JSON.stringify(resultJson));
+          myCache.set( cityId, resultJson, 10*60);//10*60s
           
         }
       }
