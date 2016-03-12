@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['RainbowWeather'],
+  app_name: ['rainbowWeather'],
   /**
    * Your New Relic license key.
    */

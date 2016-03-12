@@ -36,7 +36,7 @@ app.get('/:cityId', function (req, res) {
 });
 
 // 创建服务端
-http.createServer(app).listen(8080, function() {
+http.createServer(app).listen(80, function() {
 	console.log('Server listen http://localhost:8080');
 });
 
