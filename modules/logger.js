@@ -1,18 +1,18 @@
-var log4js = require('log4js'); 
+var log4js = require('log4js');
 log4js.configure({
-  appenders: [
-    { type: 'console' 
-      //,"category":"console"
-    },
-    { type: 'file', 
-      filename: './logs/weather.log', 
-      //category: 'normal' ,
-      //backup: 4,
-      //pattern: "-yyyy-MM-dd",
-      //alwaysIncludePattern: true,
-      maxLogSize: 1024 * 1024}
-  ],
-  //"replaceConsole": true
+    appenders: [{
+        type: 'console'
+            //,"category":"console"
+    }, {
+        type: 'file',
+        filename: './logs/weather.log',
+        //category: 'normal' ,
+        //backup: 4,
+        //pattern: "-yyyy-MM-dd",
+        //alwaysIncludePattern: true,
+        maxLogSize: 1024 * 1024
+    }],
+    //"replaceConsole": true
 });
 
 /*
@@ -24,8 +24,8 @@ logger.error('Cheese is too ripe!');
 logger.fatal('Cheese was breeding ground for listeria.');
 */
 
-exports.logger = function(name){
-  var logger = log4js.getLogger(name);
-  logger.setLevel('INFO');
-  return logger;
+exports.logger = function(name) {
+    var logger = log4js.getLogger(name);
+    logger.setLevel('INFO');
+    return logger;
 }

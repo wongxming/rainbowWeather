@@ -6,7 +6,7 @@ var data = {
                 first_name: "Thomas",
                 last_name: "Mazur",
                 account: {
-                    status: "active",
+                    status: "active",java
                     expires_at: "2009-12-31"
                 }
             },
@@ -19,11 +19,12 @@ htmlStr = nanoReplace(htmlStr, data);
 */
 
 function nanoReplace(template, data) {
-  return template.replace(/\{([\w\.]*)\}/g, function(str, key) {
-    var keys = key.split("."), v = data[keys.shift()];
-    for (var i = 0, l = keys.length; i < l; i++) v = v[keys[i]];
-    return (typeof v !== "undefined" && v !== null) ? v : "";
-  });
+    return template.replace(/\{([\w\.]*)\}/g, function(str, key) {
+        var keys = key.split("."),
+            v = data[keys.shift()];
+        for (var i = 0, l = keys.length; i < l; i++) v = v[keys[i]];
+        return (typeof v !== "undefined" && v !== null) ? v : "";
+    });
 }
 
 /* 
@@ -33,31 +34,32 @@ DataCache.getItem(key,checkTimeout);
 
 var DataCache = {
 
-	setItem : function(key,value,timeout) {
-		timeout = timeout || 180000;//3 mins
-		var timestamp = Date.now() + timeout;
-    	window.localStorage.setItem(key,value+'|'+timestamp);
-  	},
-  	removeItem : function(key) {
-    	window.localStorage.removeItem(key);
-  	},
-	clear : function() {
-		
-    	window.localStorage.clear();
-  	},
-	getItem : function(key,checkTimeout) {
-		var dataStr = window.localStorage.getItem(key);
+    setItem: function(key, value, timeout) {
+        timeout = timeout || 300000; //5 mins
+        var timestamp = Date.now() + timeout;
+        window.localStorage.setItem(key, value + '|' + timestamp);
+    },
+    removeItem: function(key) {
+        window.localStorage.removeItem(key);
+    },
+    clear: function() {
 
-		if(dataStr){
-			var dataArray = dataStr.split('|');
+        window.localStorage.clear();
+    },
+    getItem: function(key, checkTimeout) {
+        var dataStr = window.localStorage.getItem(key);
 
-   			if(checkTimeout){
-   				if(dataArray[1] > Date.now())
-      				return dataArray[0];
+        if (dataStr) {
+            var dataArray = dataStr.split('|');
 
-      		} else {
-      			return dataArray[0];
-      		}
-   		}
- 	}
+            if (checkTimeout) {
+
+                if (dataArray[1] > Date.now())
+                    return dataArray[0];
+
+            } else {
+                return dataArray[0];
+            }
+        }
+    }
 };
