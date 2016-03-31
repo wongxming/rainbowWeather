@@ -17,14 +17,14 @@ var myCache = new NodeCache();
 var ddSignUtil = require('./modules/ddSignUtil');
 
 app.post('/ddWebapp/appid', function(req, res) {
-    console.log(req.query.url);
+    console.log(req.url);
     console.log(req.body);
 
     var params = {
         nonceStr: req.query.nonce,
         timeStamp: req.query.timestamp,
         signature: req.query.signature,
-        url: decodeURIComponent(req.query.url),
+        url: decodeURIComponent(req.url),
         postData:req.body
     };
 
