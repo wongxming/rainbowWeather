@@ -2,6 +2,12 @@ var newrelic = require('newrelic');
 var http = require('http');
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.json({limit: '1mb'}));  //body-parser 解析json格式数据
+app.use(bodyParser.urlencoded({            //此项必须在 bodyParser.json 下面,为参数编码
+  extended: true
+}));
 
 app.use(express.static(__dirname + '/public'));
 
@@ -10,11 +16,35 @@ var myCache = new NodeCache();
 
 var ddSignUtil = require('./modules/ddSignUtil');
 
-app.get('/ddWebapp/appid', function(req, res) {
-    
+app.post('/ddWebapp/appid', function(req, res) {
+    console.log(req.query.url);
+    console.log(req.body);
+
     var params = {
-        nonceStr: req.query.nonceStr,
-        timeStamp: req.query.timeStamp,
+        nonceStr: req.query.nonce,
+        timeStamp: req.query.timestamp,
+        signature: req.query.signature,
+        url: decodeURIComponent(req.query.url),
+        postData:req.body
+    };
+
+    ddSignUtil.getSign(params, {
+        success: function(data) {
+            res.send(data);
+        },
+        error: function(err) {
+            res.send(err);
+        }
+    });
+});
+
+app.get('/ddWebapp/appid', function(req, res) {
+    console.log(req.query.url);
+
+    var params = {
+        nonceStr: req.query.nonce,
+        timeStamp: req.query.timestamp,
+        signature: req.query.signature,
         url: decodeURIComponent(req.query.url)
     };
 
