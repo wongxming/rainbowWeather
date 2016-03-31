@@ -5,13 +5,35 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'));
 
-var NodeCache = require( "node-cache" );
+var NodeCache = require("node-cache");
 var myCache = new NodeCache();
+
+var ddSignUtil = require('./modules/ddSignUtil');
+
+app.get('/ddWebapp/appid', function(req, res) {
+    
+    var params = {
+        nonceStr: req.query.nonceStr,
+        timeStamp: req.query.timeStamp,
+        url: decodeURIComponent(req.query.url)
+    };
+
+    ddSignUtil.getSign(params, {
+        success: function(data) {
+            res.send(data);
+        },
+        error: function(err) {
+            res.send(err);
+        }
+    });
+});
+
+
 
 var weather = require('./api/weather');
 
-app.get('/weather', function(req, res){
-  weather.getWeather(req, res,myCache);
+app.get('/weather', function(req, res) {
+    weather.getWeather(req, res, myCache);
 });
 
 
@@ -19,24 +41,23 @@ var manifest = require('./modules/manifest');
 app.get('/manifest', manifest.getManifest);
 
 
-var exphbs  = require('express-handlebars');
-app.engine('.hbs', exphbs({defaultLayout: 'main',extname:'.hbs'}));
+var exphbs = require('express-handlebars');
+app.engine('.hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }));
 app.set('view engine', '.hbs');
 
 
 var FileMd5Util = require('./modules/fileMd5Util');
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
 
-    res.render('home',{resMd5Info:FileMd5Util.getMd5Info('home'),title:'天气预报'});
+    res.render('home', { resMd5Info: FileMd5Util.getMd5Info('home'), title: '天气预报' });
 });
-app.get('/:cityId', function (req, res) {
+app.get('/:cityId', function(req, res) {
 
-    res.render('home',{resMd5Info:FileMd5Util.getMd5Info('home'),title:'天气预报'});
+    res.render('home', { resMd5Info: FileMd5Util.getMd5Info('home'), title: '天气预报' });
 });
 
 // 创建服务端
-http.createServer(app).listen(80, function() {
-	console.log('Server listen http://localhost:8080');
+http.createServer(app).listen(8080, function() {
+    console.log('Server listen http://localhost:8080');
 });
-
