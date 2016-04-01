@@ -2,6 +2,7 @@ var crypto = require('crypto');
 var WXBizMsgCrypt = require('wechat-crypto');
 var ddAuthUtil = require('./ddAuthUtil');
 
+
 var sign = {
 
     getJsapiSign: function(params) {
@@ -52,9 +53,15 @@ var sign = {
         var message = JSON.parse(result.message);
         if (message.EventType === 'check_update_suite_url' || message.EventType === 'check_create_suite_url') { //创建套件第一步，验证有效性。
             var Random = message.Random;
-            result = _jsonWrapper(timestamp, nonce, Random);
-            
-            cb.success(result);
+            var returnData = {};
+
+            returnData.encrypt = newCrypt.encrypt(Random);
+            returnData.msg_signature = newCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+            returnData.timeStamp = timestamp;
+            returnData.nonce = nonce;
+
+
+            cb.success(returnData);
 
         }
     },
