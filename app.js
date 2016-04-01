@@ -29,7 +29,7 @@ app.post('/ddWebapp/verification', function(req, res) {
         encrypt:req.body.encrypt
     };
 
-    ddSignUtil.getSign(params, {
+    ddSignUtil.verification(params, {
         success: function(data) {
             res.send(data);
         },
@@ -51,7 +51,7 @@ app.get('/ddWebapp/verification', function(req, res) {
         encrypt:req.body.encrypt
     };
 
-    ddSignUtil.getSign(params, {
+    ddSignUtil.verification(params, {
         success: function(data) {
             res.send(data);
         },
