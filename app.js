@@ -16,16 +16,17 @@ var myCache = new NodeCache();
 
 var ddSignUtil = require('./modules/ddSignUtil');
 
-app.post('/ddWebapp/appid', function(req, res) {
+app.post('/ddWebapp/verification', function(req, res) {
+    console.log('post verification');
     console.log(req.url);
-    console.log(req.body);
+    console.log(req.body.encrypt);
 
     var params = {
-        nonceStr: req.query.nonce,
-        timeStamp: req.query.timestamp,
+        nonce: req.query.nonce,
+        timestamp: req.query.timestamp,
         signature: req.query.signature,
         url: decodeURIComponent(req.url),
-        postData:req.body
+        encrypt:req.body.encrypt
     };
 
     ddSignUtil.getSign(params, {
@@ -38,16 +39,16 @@ app.post('/ddWebapp/appid', function(req, res) {
     });
 });
 
-app.get('/ddWebapp/appid', function(req, res) {
+app.get('/ddWebapp/verification', function(req, res) {
     console.log(req.url);
-    console.log(req.body);
-
+    console.log(req.body.encrypt);
 
     var params = {
-        nonceStr: req.query.nonce,
-        timeStamp: req.query.timestamp,
+        nonce: req.query.nonce,
+        timestamp: req.query.timestamp,
         signature: req.query.signature,
-        url: decodeURIComponent(req.url)
+        url: decodeURIComponent(req.url),
+        encrypt:req.body.encrypt
     };
 
     ddSignUtil.getSign(params, {

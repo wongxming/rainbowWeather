@@ -4,12 +4,16 @@ var oapiHost = 'oapi.dingtalk.com';
 
 module.exports = {
   get: function(path, cb) {
+
+    console.log('https://' + oapiHost + path);
+
     https.get('https://' + oapiHost + path, function(response) {
       if (response.statusCode === 200) {
         var body = '';  
         response.on('data', function (data) {
           body += data; 
         }).on('end', function () { 
+          console.log(body);
           var result = JSON.parse(body);
           if (result && 0 === result.errcode) {
             cb.success(result);

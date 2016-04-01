@@ -3,7 +3,10 @@ var crypto = require('crypto');
 var ddAuthUtil = require('./ddAuthUtil');
 
 var sign = {
+
     getJsapiSign: function(params) {
+
+
         var plain = 'jsapi_ticket=' + params.ticket + '&noncestr=' + params.nonceStr +
             '&timestamp=' + params.timeStamp + '&url=' + params.url;
         console.log(plain);
@@ -13,6 +16,8 @@ var sign = {
     },
 
     getSign: function(params, cb) {
+        console.log(params);
+        
         ddAuthUtil.getAccessToken({
             success: function(data) {
                 if (data && data.access_token) {
