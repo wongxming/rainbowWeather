@@ -46,7 +46,7 @@ var sign = {
         }
 
         var result = newCrypt.decrypt(encrypt);
-        console.log('message:'+result.message);
+        console.log('message:' + result.message);
         var message = JSON.parse(result.message);
         if (message.EventType === 'check_update_suite_url' || message.EventType === 'check_create_suite_url') { //创建套件第一步，验证有效性。
             var Random = message.Random;
@@ -60,6 +60,25 @@ var sign = {
 
             cb.success(returnData);
 
+        } else {
+
+
+            //{"EventType":"suite_ticket",
+            //"SuiteKey":"suite3ameqjpytd5vnnrg",
+            //"SuiteTicket":"eZK7SVOGtvFff6C493zf0pEoLYzsNd4OSkQR3ceJjJC2S1TNgELdrWZuyoniDXPpixaYwCsZ8MerMkumDFmLcR",
+            //"TimeStamp":"1459489255064"}
+            if (message.EventType === 'suite_ticket') {
+
+                var returnData = {};
+
+                returnData.encrypt = newCrypt.encrypt('success');
+                returnData.msg_signature = newCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+                returnData.timeStamp = timestamp;
+                returnData.nonce = nonce;
+
+console.log("SuiteTicket "+message.SuiteTicket);
+                cb.success(returnData);
+            }
         }
     },
 
