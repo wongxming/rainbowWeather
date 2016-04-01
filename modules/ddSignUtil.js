@@ -27,12 +27,8 @@ var sign = {
         var config = {
             token: 'today8weather',
             encodingAESKey: 'tneaaerppmdarj97z43vs5wd75mht47xt1k4v5aeces',
-            suiteid: 'suite4xxxxxxxxxxxxxxx', //第一次验证没有不用填 
-
-            saveTicket: function(data, callback) { //可选，和主动调用API: dingtalk_suite 配合使用。 
-                //data:{value: ticket字符串,  expires：到期时间，钉钉回调时间戳 + 20分钟} 
-                fs.writeFile(this.suiteid + 'ticket.txt', JSON.stringify(data), callback);
-            }
+            suiteid: 'suite3ameqjpytd5vnnrg', //第一次验证没有不用填 
+            suitesecret: 'Mw5YrZ2_XxKzmxemIhY3vwtTkku8jAB1ZUVCqTQQOJ7YZ65I_lGS2Lfs_TIcnxfe'
 
         }
         var newCrypt = new WXBizMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
@@ -50,6 +46,7 @@ var sign = {
         }
 
         var result = newCrypt.decrypt(encrypt);
+        console.log('message:'+result.message);
         var message = JSON.parse(result.message);
         if (message.EventType === 'check_update_suite_url' || message.EventType === 'check_create_suite_url') { //创建套件第一步，验证有效性。
             var Random = message.Random;
