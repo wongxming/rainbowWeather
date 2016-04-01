@@ -1,5 +1,5 @@
 var crypto = require('crypto');
-var WXBizMsgCrypt = require('wechat-crypto');
+var DTalkMsgCrypt = require('./dTalkMsgCrypt');
 var ddAuthUtil = require('./ddAuthUtil');
 
 
@@ -31,7 +31,7 @@ var sign = {
             suitesecret: 'Mw5YrZ2_XxKzmxemIhY3vwtTkku8jAB1ZUVCqTQQOJ7YZ65I_lGS2Lfs_TIcnxfe'
 
         }
-        var newCrypt = new WXBizMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
+        var newCrypt = new DTalkMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
         var TICKET_EXPIRES_IN = config.ticket_expires_in || 1000 * 60 * 20 //20分钟
 
         var signature = params.signature;
