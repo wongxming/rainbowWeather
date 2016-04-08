@@ -33,8 +33,8 @@ module.exports = {
         dTalkHttpsUtil.post('/service/activate_suite?suite_access_token=' + suite_access_token, data, cb);
         //返回 {"errcode":0,"errmsg":"ok"}
     },
-    POST https: //oapi.dingtalk.com/service/get_corp_token?suite_access_token=xxxx
-        getAccessToken: function(suite_access_token, auth_corpid, permanent_code, cb) {
+    //POST https: //oapi.dingtalk.com/service/get_corp_token?suite_access_token=xxxx
+    getAccessToken: function(suite_access_token, auth_corpid, permanent_code, cb) {
         var data = {
             auth_corpid: auth_corpid,
             permanent_code: permanent_code

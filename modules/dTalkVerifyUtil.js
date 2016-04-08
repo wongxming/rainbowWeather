@@ -1,4 +1,4 @@
-var DTalkCrypt = require('./DTalkCrypt');
+var DTalkCrypt = require('./dTalkCrypt');
 var dTalkApiUtil = require('./dTalkApiUtil');
 
 var fs = require('fs');
