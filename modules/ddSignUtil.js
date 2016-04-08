@@ -116,7 +116,7 @@ console.log('Invalid signature');
             returnData.encrypt = dTalkCrypt.encrypt(message.Random);
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
-            returnData.msg_signature = dTalkCrypt.getSignature(returnData.timestamp, returnData.nonce, returnData.encrypt); //新签名
+            returnData.msg_signature = dTalkCrypt.getSignature(returnData.timeStamp, returnData.nonce, returnData.encrypt); //新签名
 
             cb.success(returnData);
 
@@ -131,10 +131,10 @@ console.log('Invalid signature');
              */
 
             var returnData = {};
+            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
-            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
+            returnData.msg_signature = dTalkCrypt.getSignature(returnData.timeStamp, returnData.nonce, returnData.encrypt); //新签名
             
 
             console.log("SuiteTicket " + message.SuiteTicket);
@@ -153,9 +153,10 @@ console.log('Invalid signature');
             var returnData = {};
 
             returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
+            returnData.msg_signature = dTalkCrypt.getSignature(returnData.timeStamp, returnData.nonce, returnData.encrypt); //新签名
+            
 
             console.log("AuthCode " + message.AuthCode);
             cb.success(returnData);
