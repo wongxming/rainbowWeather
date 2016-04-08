@@ -17,32 +17,7 @@ var myCache = new NodeCache();
 var ddSignUtil = require('./modules/ddSignUtil');
 
 app.post('/ddWebapp/verification', function(req, res) {
-    console.log('post verification');
-    console.log(req.url);
-    console.log(req.body.encrypt);
-
-    var params = {
-        nonce: req.query.nonce,
-        timestamp: req.query.timestamp,
-        signature: req.query.signature,
-        url: decodeURIComponent(req.url),
-        encrypt:req.body.encrypt
-    };
-
-    ddSignUtil.verification(params, {
-        success: function(data) {
-            res.send(data);
-        },
-        error: function(err) {
-            res.send(err);
-        }
-    });
-});
-
-app.get('/ddWebapp/verification', function(req, res) {
-    console.log(req.url);
-    console.log(req.body.encrypt);
-
+    
     var params = {
         nonce: req.query.nonce,
         timestamp: req.query.timestamp,

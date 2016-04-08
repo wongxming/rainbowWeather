@@ -56,16 +56,8 @@ var config = {
 
 }
 
-function getJsapiSign(params) {
-
-
-    var plain = 'jsapi_ticket=' + params.ticket + '&noncestr=' + params.nonceStr +
-        '&timestamp=' + params.timeStamp + '&url=' + params.url;
-
-    var sha1 = crypto.createHash('sha1');
-    sha1.update(plain, 'utf8');
-    return sha1.digest('hex');
-};
+var dTalkCrypt = new DTalkMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
+        
 var nonce_success ='success';
 
 var sign = {
@@ -80,25 +72,23 @@ var sign = {
           url: '/ddWebapp/verification?signature=5e99e6776f0175bb46e2be2fe9a86451a7cfed39&timestamp=1459480970197&nonce=beoX0mcQ',
           encrypt: 'EyLLPYREzxteWl2T3BQ==' }
           */
-
-        var dTalkCrypt = new DTalkMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
-        var TICKET_EXPIRES_IN = config.ticket_expires_in || 1000 * 60 * 20 //20分钟
-
         var signature = params.signature;
         var timestamp = params.timestamp;
         var nonce = params.nonce;
         var encrypt = params.encrypt;
 
         if (signature !== dTalkCrypt.getSignature(timestamp, nonce, encrypt)) {
-
+console.log('Invalid signature');
             var returnData = {};
             returnData.message = 'Invalid signature';
             cb.success(returnData);
+
             return;
         }
 
         var result = dTalkCrypt.decrypt(encrypt);
-        console.log('message:' + result.message);
+        console.log('decrypt message:' + result.message);
+
         var message = JSON.parse(result.message);
 
         if (message.EventType === 'check_update_suite_url' || message.EventType === 'check_create_suite_url') { //创建套件第一步，验证有效性。
@@ -123,9 +113,9 @@ var sign = {
 
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
+            returnData.encrypt = dTalkCrypt.encrypt(message.Random);
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce_success;
+            returnData.nonce = nonce;
             returnData.msg_signature = dTalkCrypt.getSignature(returnData.timestamp, returnData.nonce, returnData.encrypt); //新签名
 
             cb.success(returnData);
@@ -141,11 +131,11 @@ var sign = {
              */
 
             var returnData = {};
-
+            returnData.timeStamp = timestamp;
+            returnData.nonce = nonce;
             returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
             returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
-            returnData.timeStamp = timestamp;
-            returnData.nonce = nonce_success;
+            
 
             console.log("SuiteTicket " + message.SuiteTicket);
             cb.success(returnData);
@@ -165,7 +155,7 @@ var sign = {
             returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
             returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce_success;
+            returnData.nonce = nonce;
 
             console.log("AuthCode " + message.AuthCode);
             cb.success(returnData);
@@ -185,7 +175,7 @@ var sign = {
             returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
             returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce_success;
+            returnData.nonce = nonce;
 
             console.log("AuthCorpId " + message.AuthCorpId);
             cb.success(returnData);
