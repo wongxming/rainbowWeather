@@ -9,32 +9,49 @@ var config = {
     suiteid: 'suite3ameqjpytd5vnnrg', //第一次验证没有不用填 
     suitesecret: 'Mw5YrZ2_XxKzmxemIhY3vwtTkku8jAB1ZUVCqTQQOJ7YZ65I_lGS2Lfs_TIcnxfe',
 
-    getTicket: function(callback) {
-        //从数据库中取出Tikcet，返回的data样式为：{value: 'xxxxxxx', expires:1452735301543}
-        //ticket从 dingtalk_suite_callback 处获得
+    /*"suite_ticket"事件每二十分钟推送一次,数据格式如下
+                 * {
+                      "SuiteKey": "suitexxxxxx",
+                      "EventType": "suite_ticket",
+                      "TimeStamp": 1234456,
+                      "SuiteTicket": "adsadsad"
+                    }
+                 */
+    getTicket: function() {
+
         fs.readFile(this.suiteid + '_ticket.json', function(err, data) {
             if (err) {
-                return callback(err);
+                return '';
             }
-            data = JSON.parse(data.toString());
-            callback(null, data);
+            return JSON.parse(data.toString());
         });
     },
+    saveTicket: function(data) {
 
-    getToken: function(callback) {
-        //从数据库中取出Token，返回的data样式为：{value: 'xxxxxxx', expires:1452735301543}
+        fs.writeFile(this.suiteid + '_ticket.json', JSON.stringify(data));
+    },
+    /*"tmp_auth_code"事件将企业对套件发起授权的时候推送,数据格式如下
+                {
+                  "SuiteKey": "suitexxxxxx",
+                  "EventType": " tmp_auth_code",
+                  "TimeStamp": 1234456,
+                  "AuthCode": "adads"
+                }            
+                */
+    getToken: function() {
+
         fs.readFile(this.suiteid + '_token.json', function(err, data) {
             if (err) {
-                return callback(err);
+                return '';
             }
-            data = JSON.parse(data.toString());
-            callback(null, data);
+
+            return JSON.parse(data.toString());
         });
     },
 
-    saveToken: function(data, callback) {
-        //存储Token到数据库中，data样式为：{value: 'xxxxxxx', expires:1452735301543//过期时间}
-        fs.writeFile(this.suiteid + '_token.json', JSON.stringify(data), callback);
+    saveToken: function(data) {
+
+        fs.writeFile(this.suiteid + '_token.json', JSON.stringify(data));
     }
 
 }
@@ -49,6 +66,7 @@ function getJsapiSign(params) {
     sha1.update(plain, 'utf8');
     return sha1.digest('hex');
 };
+var nonce_success ='success';
 
 var sign = {
 
@@ -72,8 +90,10 @@ var sign = {
         var encrypt = params.encrypt;
 
         if (signature !== dTalkCrypt.getSignature(timestamp, nonce, encrypt)) {
-            res.writeHead(401);
-            res.end('Invalid signature');
+
+            var returnData = {};
+            returnData.message = 'Invalid signature';
+            cb.success(returnData);
             return;
         }
 
@@ -100,14 +120,13 @@ var sign = {
              */
 
 
-            var Random = message.Random;
+
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt(Random);
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+            returnData.encrypt = dTalkCrypt.encrypt(message.Random);
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
-
+            returnData.msg_signature = dTalkCrypt.getSignature(returnData.timestamp, returnData.nonce, returnData.encrypt); //新签名
 
             cb.success(returnData);
 
@@ -123,13 +142,14 @@ var sign = {
 
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt('success');
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
+            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce;
+            returnData.nonce = nonce_success;
 
             console.log("SuiteTicket " + message.SuiteTicket);
             cb.success(returnData);
+            config.saveTicket(message);
 
         } else if (message.EventType === 'tmp_auth_code') {
             /*"tmp_auth_code"事件将企业对套件发起授权的时候推送,数据格式如下
@@ -142,13 +162,14 @@ var sign = {
             */
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt('success');
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
+            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce;
+            returnData.nonce = nonce_success;
 
-            console.log("SuiteTicket " + message.SuiteTicket);
+            console.log("AuthCode " + message.AuthCode);
             cb.success(returnData);
+            config.saveToken(message);
 
         } else if (message.EventType === 'change_auth') {
             /*"change_auth"事件将在企业授权变更消息发生时推送,数据格式如下
@@ -161,31 +182,12 @@ var sign = {
             */
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt('success');
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
+            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
+            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce_success, returnData.encrypt); //新签名
             returnData.timeStamp = timestamp;
-            returnData.nonce = nonce;
+            returnData.nonce = nonce_success;
 
-            console.log("SuiteTicket " + message.SuiteTicket);
-            cb.success(returnData);
-
-        } else if (message.EventType === 'change_auth') {
-            /*"change_auth"事件将在企业授权变更消息发生时推送,数据格式如下
-            {
-              "SuiteKey": "suitexxxxxx",
-              "EventType": " change_auth",
-              "TimeStamp": 1234456,
-              "AuthCorpId": "xxxxx"
-            }
-            */
-            var returnData = {};
-
-            returnData.encrypt = dTalkCrypt.encrypt('success');
-            returnData.msg_signature = dTalkCrypt.getSignature(timestamp, nonce, returnData.encrypt); //新签名
-            returnData.timeStamp = timestamp;
-            returnData.nonce = nonce;
-
-            console.log("SuiteTicket " + message.SuiteTicket);
+            console.log("AuthCorpId " + message.AuthCorpId);
             cb.success(returnData);
 
         }
