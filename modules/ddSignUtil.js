@@ -23,6 +23,7 @@ var config = {
             if (err) {
                 return '';
             }
+            console.log("suite_ticket "+data);
             return JSON.parse(data.toString()).SuiteTicket;
         });
     },
@@ -44,7 +45,7 @@ var config = {
             if (err) {
                 return '';
             }
-
+console.log("tmp_auth_code "+data);
             return JSON.parse(data.toString()).AuthCode;
         });
     },
