@@ -123,9 +123,9 @@ var sign = {
 
             var returnData = {};
 
-            returnData.encrypt = dTalkCrypt.encrypt(message.Random);
+            returnData.encrypt = dTalkCrypt.encrypt(nonce_success);
             returnData.timeStamp = timestamp;
-            returnData.nonce = message.Random;
+            returnData.nonce = nonce_success;
             returnData.msg_signature = dTalkCrypt.getSignature(returnData.timestamp, returnData.nonce, returnData.encrypt); //新签名
 
             cb.success(returnData);
