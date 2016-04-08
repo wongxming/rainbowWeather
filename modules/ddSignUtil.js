@@ -23,7 +23,7 @@ var config = {
             if (err) {
                 return '';
             }
-            return JSON.parse(data.toString());
+            return JSON.parse(data.toString()).SuiteTicket;
         });
     },
     saveTicket: function(data) {
@@ -45,7 +45,7 @@ var config = {
                 return '';
             }
 
-            return JSON.parse(data.toString());
+            return JSON.parse(data.toString()).AuthCode;
         });
     },
 
@@ -59,6 +59,9 @@ var config = {
 var dTalkCrypt = new DTalkMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
         
 var nonce_success ='success';
+
+console.log(config.getToken());
+console.log(config.getTicket());
 
 var sign = {
 
