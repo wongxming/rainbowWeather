@@ -14,7 +14,7 @@ app.use(express.static(__dirname + '/public'));
 var NodeCache = require("node-cache");
 var myCache = new NodeCache();
 
-var ddSignUtil = require('./modules/ddSignUtil');
+var dTalkVerifyUtil = require('./modules/dTalkVerifyUtil');
 
 app.post('/ddWebapp/verification', function(req, res) {
     
@@ -26,7 +26,7 @@ app.post('/ddWebapp/verification', function(req, res) {
         encrypt:req.body.encrypt
     };
 
-    ddSignUtil.verification(params, {
+    dTalkVerifyUtil.verification(params, {
         success: function(data) {
             res.send(data);
         },

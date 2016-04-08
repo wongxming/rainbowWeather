@@ -1,6 +1,6 @@
-var crypto = require('crypto');
-var DTalkMsgCrypt = require('./dTalkMsgCrypt');
-var ddAuthUtil = require('./ddAuthUtil');
+var DTalkCrypt = require('./DTalkCrypt');
+var dTalkApiUtil = require('./dTalkApiUtil');
+
 var fs = require('fs');
 
 var config = {
@@ -10,21 +10,17 @@ var config = {
     suitesecret: 'Mw5YrZ2_XxKzmxemIhY3vwtTkku8jAB1ZUVCqTQQOJ7YZ65I_lGS2Lfs_TIcnxfe',
 
     /*"suite_ticket"事件每二十分钟推送一次,数据格式如下
-                 * {
-                      "SuiteKey": "suitexxxxxx",
-                      "EventType": "suite_ticket",
-                      "TimeStamp": 1234456,
-                      "SuiteTicket": "adsadsad"
-                    }
-                 */
-    getTicket: function() {
+    {"SuiteKey": "suitexxxxxx","EventType": "suite_ticket","TimeStamp": 1234456,"SuiteTicket": "adsadsad"}
+    */
+    getTicket: function(callback) {
 
         fs.readFile(this.suiteid + '_ticket.json', function(err, data) {
             if (err) {
-                return '';
+                callback(err);
+                return;
             }
-            console.log("suite_ticket "+data);
-            return JSON.parse(data.toString()).SuiteTicket;
+            console.log("suite_ticket " + data);
+            callback(null, { SuiteTicket: JSON.parse(data.toString()).SuiteTicket });
         });
     },
     saveTicket: function(data) {
@@ -32,21 +28,16 @@ var config = {
         fs.writeFile(this.suiteid + '_ticket.json', JSON.stringify(data));
     },
     /*"tmp_auth_code"事件将企业对套件发起授权的时候推送,数据格式如下
-                {
-                  "SuiteKey": "suitexxxxxx",
-                  "EventType": " tmp_auth_code",
-                  "TimeStamp": 1234456,
-                  "AuthCode": "adads"
-                }            
-                */
-    getToken: function() {
+    {"SuiteKey": "suitexxxxxx", "EventType": " tmp_auth_code","TimeStamp": 1234456,"AuthCode": "adads"}            
+    */
+    getToken: function(callback) {
 
         fs.readFile(this.suiteid + '_token.json', function(err, data) {
             if (err) {
-                return '';
+                callback(err);
+                return;
             }
-console.log("tmp_auth_code "+data);
-            return JSON.parse(data.toString()).AuthCode;
+            callback(null, { AuthCode: JSON.parse(data.toString()).AuthCode });
         });
     },
 
@@ -57,35 +48,31 @@ console.log("tmp_auth_code "+data);
 
 }
 
-var dTalkCrypt = new DTalkMsgCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
-        
-var nonce_success ='success';
+var dTalkCrypt = new DTalkCrypt(config.token, config.encodingAESKey, config.suiteid || 'suite4xxxxxxxxxxxxxxx');
 
-console.log(config.getToken());
-console.log(config.getTicket());
+var nonce_success = 'success';
 
-var sign = {
+var dTalkVerifyUtil = {
 
 
     verification: function(params, cb) {
         console.log(params);
         /*
-                { nonce: 'beoX0mcQ',
+        { nonce: 'beoX0mcQ',
           timestamp: '1459480970197',
           signature: '5e99e6776f0175bb46e2be2fe9a86451a7cfed39',
           url: '/ddWebapp/verification?signature=5e99e6776f0175bb46e2be2fe9a86451a7cfed39&timestamp=1459480970197&nonce=beoX0mcQ',
-          encrypt: 'EyLLPYREzxteWl2T3BQ==' }
-          */
+          encrypt: 'EyLLPYREzxteWl2T3BQ==' 
+        }
+        */
         var signature = params.signature;
         var timestamp = params.timestamp;
         var nonce = params.nonce;
         var encrypt = params.encrypt;
 
         if (signature !== dTalkCrypt.getSignature(timestamp, nonce, encrypt)) {
-console.log('Invalid signature');
-            var returnData = {};
-            returnData.message = 'Invalid signature';
-            cb.success(returnData);
+            console.log('Invalid signature');
+            cb.success({ message: 'Invalid signature' });
 
             return;
         }
@@ -109,12 +96,8 @@ console.log('Invalid signature');
                   "EventType":"check_update_suite_url",
                   "Random":"Aedr5LMW",
                   "TestSuiteKey":"suited6db0pze8yao1b1y"
-                
                 }
              */
-
-
-
             var returnData = {};
 
             returnData.encrypt = dTalkCrypt.encrypt(message.Random);
@@ -139,11 +122,12 @@ console.log('Invalid signature');
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
             returnData.msg_signature = dTalkCrypt.getSignature(returnData.timeStamp, returnData.nonce, returnData.encrypt); //新签名
-            
+
 
             console.log("SuiteTicket " + message.SuiteTicket);
             cb.success(returnData);
             config.saveTicket(message);
+
 
         } else if (message.EventType === 'tmp_auth_code') {
             /*"tmp_auth_code"事件将企业对套件发起授权的时候推送,数据格式如下
@@ -160,11 +144,27 @@ console.log('Invalid signature');
             returnData.timeStamp = timestamp;
             returnData.nonce = nonce;
             returnData.msg_signature = dTalkCrypt.getSignature(returnData.timeStamp, returnData.nonce, returnData.encrypt); //新签名
-            
+
 
             console.log("AuthCode " + message.AuthCode);
             cb.success(returnData);
             config.saveToken(message);
+
+            config.getTicket(function(data) {
+                dTalkApiUtil.getSuiteAccessToken(config.suiteid, config.suitesecret, data.SuiteTicket, function(result) {
+                    //save SuiteAccessToken
+                    var suiteAccessToken = result.suite_access_token;
+
+                    dTalkApiUtil.getPermanentCode(suiteAccessToken, message.AuthCode, function(corpInfo) {
+                        //{"permanent_code": "xxxx","auth_corp_info":{"corpid": "xxxx","corp_name": "name"}}
+                        dTalkApiUtil.getActivateSuite(suiteAccessToken, config.suiteid, corpInfo.auth_corp_info.corpid, corpInfo.permanent_code, function(resultInfo) {});
+
+                        fs.writeFile(config.suiteid + '_' + corpInfo.auth_corp_info.corpid + '_permanent_code.json', JSON.stringify(corpInfo));
+                    });
+                });
+
+            });
+
 
         } else if (message.EventType === 'change_auth') {
             /*"change_auth"事件将在企业授权变更消息发生时推送,数据格式如下
@@ -190,4 +190,4 @@ console.log('Invalid signature');
 
 };
 
-module.exports = sign;
+module.exports = dTalkVerifyUtil;

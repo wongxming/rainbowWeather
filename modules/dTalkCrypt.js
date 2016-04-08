@@ -45,7 +45,7 @@ PKCS7Encoder.encode = function (text) {
  * @param {String} encodingAESKey 公众平台上，开发者设置的EncodingAESKey
  * @param {String} id         企业号的CorpId或者AppId
  */
-var DTalkMsgCrypt = function (token, encodingAESKey, id) {
+var DTalkCrypt = function (token, encodingAESKey, id) {
   if (!token || !encodingAESKey || !id) {
     throw new Error('please check arguments');
   }
@@ -66,7 +66,7 @@ var DTalkMsgCrypt = function (token, encodingAESKey, id) {
  * @param {String} nonce        随机数
  * @param {String} encrypt      加密后的文本
  */
-DTalkMsgCrypt.prototype.getSignature = function(timestamp, nonce, encrypt) {
+DTalkCrypt.prototype.getSignature = function(timestamp, nonce, encrypt) {
   var shasum = crypto.createHash('sha1');
   var arr = [this.token, timestamp, nonce, encrypt].sort();
   shasum.update(arr.join(''));
@@ -79,7 +79,7 @@ DTalkMsgCrypt.prototype.getSignature = function(timestamp, nonce, encrypt) {
  *
  * @param {String} text 待解密的密文
  */
-DTalkMsgCrypt.prototype.decrypt = function(text) {
+DTalkCrypt.prototype.decrypt = function(text) {
   // 创建解密对象，AES采用CBC模式，数据采用PKCS#7填充；IV初始向量大小为16字节，取AESKey前16字节
   var decipher = crypto.createDecipheriv('aes-256-cbc', this.key, this.iv);
   decipher.setAutoPadding(false);
@@ -102,7 +102,7 @@ DTalkMsgCrypt.prototype.decrypt = function(text) {
  *
  * @param {String} text 待加密的明文
  */
-DTalkMsgCrypt.prototype.encrypt = function (text) {
+DTalkCrypt.prototype.encrypt = function (text) {
   // 算法：AES_Encrypt[random(16B) + msg_len(4B) + msg + $CorpID]
   // 获取16B的随机字符串
   var randomString = crypto.pseudoRandomBytes(16);
@@ -130,4 +130,4 @@ DTalkMsgCrypt.prototype.encrypt = function (text) {
   return cipheredMsg.toString('base64');
 };
 
-module.exports = DTalkMsgCrypt;
+module.exports = DTalkCrypt;
