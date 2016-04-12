@@ -17,7 +17,7 @@ var config = {
         fs.readFile(this.suiteid + '_ticket.json', function(err, data) {
             if (err) {
                 callback(err);
-                console.log('getTicket err '+err);
+                console.log('getTicket err ' + err);
                 return;
             }
             console.log("suite_ticket " + data);
@@ -153,17 +153,40 @@ var dTalkVerifyUtil = {
 
             config.getTicket(function(data) {
 
-                dTalkApiUtil.getSuiteAccessToken(config.suiteid, config.suitesecret, data.SuiteTicket, function(result) {
-                    //save SuiteAccessToken
-                    var suiteAccessToken = result.suite_access_token;
+                dTalkApiUtil.getSuiteAccessToken(config.suiteid, config.suitesecret, data.SuiteTicket, {
 
-                    dTalkApiUtil.getPermanentCode(suiteAccessToken, message.AuthCode, function(corpInfo) {
-                        //{"permanent_code": "xxxx","auth_corp_info":{"corpid": "xxxx","corp_name": "name"}}
-                        dTalkApiUtil.getActivateSuite(suiteAccessToken, config.suiteid, corpInfo.auth_corp_info.corpid, corpInfo.permanent_code, function(resultInfo) {});
+                        success: function(result) {
+                            //save SuiteAccessToken
+                            var suiteAccessToken = result.suite_access_token;
 
-                        fs.writeFile(config.suiteid + '_' + corpInfo.auth_corp_info.corpid + '_permanent_code.json', JSON.stringify(corpInfo));
-                    });
-                });
+                            dTalkApiUtil.getPermanentCode(suiteAccessToken, message.AuthCode, {
+                                    success: function(corpInfo) {
+                                        //{"permanent_code": "xxxx","auth_corp_info":{"corpid": "xxxx","corp_name": "name"}}
+                                        dTalkApiUtil.getActivateSuite(suiteAccessToken, config.suiteid, corpInfo.auth_corp_info.corpid, corpInfo.permanent_code, {
+                                            success: function(resultInfo) {
+                                                console.log('resultInfo ' + resultInfo);
+                                            },
+                                            error: function(err) {
+                                                console.log(err);
+                                            }
+                                        });
+
+                                        fs.writeFile(config.suiteid + '_' + corpInfo.auth_corp_info.corpid + '_permanent_code.json', JSON.stringify(corpInfo));
+                                    },
+                                    error: function(err) {
+                                        console.log(err);
+                                    }
+                                }
+
+
+                            );
+                        },
+                        error: function(err) {
+                            console.log(err);
+                        }
+                    }
+
+                );
 
             });
 
