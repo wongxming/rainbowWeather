@@ -13,12 +13,10 @@ module.exports = {
         request(options, function(err, response, body) {
             if (!err) {
 
-                var result = JSON.parse(body);
-
-                if (result && 0 === result.errcode) {
-                    cb.success(result);
+                if (body && 0 === body.errcode) {
+                    cb.success(body);
                 } else {
-                    cb.error(result);
+                    cb.error(body);
                 }
 
             } else {
@@ -38,12 +36,10 @@ module.exports = {
         request(options, function(err, response, body) {
             if (!err) {
 
-                var result = JSON.parse(body);
-
-                if (result && 0 === result.errcode) {
-                    cb.success(result);
+                if (body && 0 === body.errcode) {
+                    cb.success(body);
                 } else {
-                    cb.error(result);
+                    cb.error(body);
                 }
                 
             } else {
