@@ -1,6 +1,6 @@
 var DTalkCrypt = require('./dTalkCrypt');
 var dTalkApiUtil = require('./dTalkApiUtil');
-
+var Rx = require('rx');
 var fs = require('fs');
 
 var config = {
@@ -17,10 +17,11 @@ var config = {
         fs.readFile(this.suiteid + '_ticket.json', function(err, data) {
             if (err) {
                 callback(err);
+                console.log('getTicket err '+err);
                 return;
             }
             console.log("suite_ticket " + data);
-            callback(null, { SuiteTicket: JSON.parse(data.toString()).SuiteTicket });
+            callback({ SuiteTicket: JSON.parse(data.toString()).SuiteTicket });
         });
     },
     saveTicket: function(data) {
@@ -37,7 +38,7 @@ var config = {
                 callback(err);
                 return;
             }
-            callback(null, { AuthCode: JSON.parse(data.toString()).AuthCode });
+            callback({ AuthCode: JSON.parse(data.toString()).AuthCode });
         });
     },
 
@@ -151,6 +152,7 @@ var dTalkVerifyUtil = {
             config.saveToken(message);
 
             config.getTicket(function(data) {
+
                 dTalkApiUtil.getSuiteAccessToken(config.suiteid, config.suitesecret, data.SuiteTicket, function(result) {
                     //save SuiteAccessToken
                     var suiteAccessToken = result.suite_access_token;
